@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -16,74 +18,86 @@ void main() {
 
 // ======================= PALET =======================
 class Palet {
-  final Color latar, panel, panel2, cyan, magenta, kuning, teks, pudar, merah;
+  final Color latar,
+      latar2,
+      kaca,
+      garis,
+      aksen,
+      aksen2,
+      emas,
+      teks,
+      pudar,
+      merah;
 
   const Palet({
     required this.latar,
-    required this.panel,
-    required this.panel2,
-    required this.cyan,
-    required this.magenta,
-    required this.kuning,
+    required this.latar2,
+    required this.kaca,
+    required this.garis,
+    required this.aksen,
+    required this.aksen2,
+    required this.emas,
     required this.teks,
     required this.pudar,
     required this.merah,
   });
 
   static const gelap = Palet(
-    latar: Color(0xFF0A0614),
-    panel: Color(0xFF140B26),
-    panel2: Color(0xFF1C1038),
-    cyan: Color(0xFF00F0FF),
-    magenta: Color(0xFFFF2BD6),
-    kuning: Color(0xFFFCEE0A),
-    teks: Color(0xFFEAF6FF),
-    pudar: Color(0xFF8E86B8),
-    merah: Color(0xFFFF3B5C),
+    latar: Color(0xFF06141A),
+    latar2: Color(0xFF0D3039),
+    kaca: Color(0x1AFFFFFF),
+    garis: Color(0x2EFFFFFF),
+    aksen: Color(0xFF5FE3C4),
+    aksen2: Color(0xFF7CC6FF),
+    emas: Color(0xFFF2D58A),
+    teks: Color(0xFFFFFFFF),
+    pudar: Color(0xB3FFFFFF),
+    merah: Color(0xFFFF8A8A),
   );
 
   static const terang = Palet(
-    latar: Color(0xFFF1EEFB),
-    panel: Color(0xFFFFFFFF),
-    panel2: Color(0xFFE6E0FA),
-    cyan: Color(0xFF007C89),
-    magenta: Color(0xFFC1049D),
-    kuning: Color(0xFF8A7B00),
-    teks: Color(0xFF1B1235),
-    pudar: Color(0xFF6C6590),
-    merah: Color(0xFFD31F45),
+    latar: Color(0xFFEAF7F4),
+    latar2: Color(0xFFCDEBEC),
+    kaca: Color(0xB3FFFFFF),
+    garis: Color(0x330B2A33),
+    aksen: Color(0xFF0F9D86),
+    aksen2: Color(0xFF1F7AB8),
+    emas: Color(0xFF8F6F0E),
+    teks: Color(0xFF0B2A33),
+    pudar: Color(0xFF4F6F78),
+    merah: Color(0xFFD64545),
   );
 }
 
 Palet paletDari(BuildContext context) =>
     context.watch<PengaturanModel>().gelap ? Palet.gelap : Palet.terang;
 
-TextStyle judulStyle(double ukuran, Color warna, {double spasi = 1.8}) =>
-    GoogleFonts.orbitron(
-      fontSize: ukuran,
-      fontWeight: FontWeight.w900,
-      color: warna,
-      letterSpacing: spasi,
-    );
-
-TextStyle isiStyle(double ukuran, Color warna) => GoogleFonts.rajdhani(
+// Judul dan angka besar: serif
+TextStyle serif(
+  double ukuran,
+  Color warna, {
+  FontWeight berat = FontWeight.w500,
+}) => GoogleFonts.cormorantGaramond(
   fontSize: ukuran,
-  fontWeight: FontWeight.w700,
+  fontWeight: berat,
   color: warna,
+  height: 1.05,
 );
 
-List<BoxShadow> glow(Color warna, {double kuat = 0.35}) => [
-  BoxShadow(color: warna.withOpacity(kuat), blurRadius: 14),
-];
+// Teks isi: sans modern
+TextStyle isi(
+  double ukuran,
+  Color warna, {
+  FontWeight berat = FontWeight.w500,
+}) => GoogleFonts.inter(fontSize: ukuran, fontWeight: berat, color: warna);
 
-ShapeBorder bentukSiku(Color warna, {double garis = 1.5}) =>
-    BeveledRectangleBorder(
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(14),
-        bottomRight: Radius.circular(14),
-      ),
-      side: BorderSide(color: warna, width: garis),
-    );
+// Label kecil huruf kapital
+TextStyle label(double ukuran, Color warna) => GoogleFonts.inter(
+  fontSize: ukuran,
+  fontWeight: FontWeight.w600,
+  color: warna,
+  letterSpacing: 1.6,
+);
 
 // ======================= MODEL DATA =======================
 class Produk {
@@ -121,9 +135,9 @@ String jam(DateTime t) =>
 // ======================= STATE: KERANJANG (Provider) =======================
 class KeranjangModel extends ChangeNotifier {
   final Map<int, int> _jumlahPerProduk = {};
-  final List<String> _riwayat = []; // riwayat aktivitas keranjang
+  final List<String> _riwayat = [];
 
-  Map<int, int> get isi => Map.unmodifiable(_jumlahPerProduk);
+  Map<int, int> get isiKeranjang => Map.unmodifiable(_jumlahPerProduk);
   List<String> get riwayat => List.unmodifiable(_riwayat);
 
   int get jumlah => _jumlahPerProduk.values.fold<int>(0, (a, b) => a + b);
@@ -137,7 +151,7 @@ class KeranjangModel extends ChangeNotifier {
 
   void _catat(String pesan) {
     _riwayat.insert(0, '[${jam(DateTime.now())}] $pesan');
-    if (_riwayat.length > 10) _riwayat.removeLast(); // simpan 10 terakhir
+    if (_riwayat.length > 10) _riwayat.removeLast();
   }
 
   void tambah(Produk p) {
@@ -198,7 +212,7 @@ class AplikasiBelanja extends StatelessWidget {
         brightness: gelap ? Brightness.dark : Brightness.light,
         scaffoldBackgroundColor: p.latar,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: p.cyan,
+          seedColor: p.aksen,
           brightness: gelap ? Brightness.dark : Brightness.light,
         ),
       ),
@@ -208,6 +222,200 @@ class AplikasiBelanja extends StatelessWidget {
 }
 
 // ======================= KOMPONEN BERSAMA =======================
+
+// Latar samudra: gradasi + cahaya lembut
+class LatarSamudra extends StatelessWidget {
+  final Widget child;
+  const LatarSamudra({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = paletDari(context);
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [p.latar2, p.latar],
+        ),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            top: -120,
+            right: -80,
+            child: Container(
+              width: 340,
+              height: 340,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [p.aksen.withOpacity(0.28), Colors.transparent],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -140,
+            left: -100,
+            child: Container(
+              width: 360,
+              height: 360,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [p.aksen2.withOpacity(0.22), Colors.transparent],
+                ),
+              ),
+            ),
+          ),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+// Kartu kaca (glassmorphism)
+class Kaca extends StatelessWidget {
+  final Widget child;
+  final EdgeInsets padding;
+  final double radius;
+  final EdgeInsets margin;
+
+  const Kaca({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.all(16),
+    this.radius = 22,
+    this.margin = const EdgeInsets.only(bottom: 14),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final p = paletDari(context);
+    return Padding(
+      padding: margin,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(radius),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+          child: Container(
+            padding: padding,
+            decoration: BoxDecoration(
+              color: p.kaca,
+              borderRadius: BorderRadius.circular(radius),
+              border: Border.all(color: p.garis),
+            ),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Judul halaman gaya hero: label kecil + garis mint + judul serif besar
+class JudulHero extends StatelessWidget {
+  final String eyebrow;
+  final String judul;
+  final String? sub;
+
+  const JudulHero({
+    super.key,
+    required this.eyebrow,
+    required this.judul,
+    this.sub,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final p = paletDari(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 8, 4, 18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(width: 28, height: 1.5, color: p.aksen),
+              const SizedBox(width: 10),
+              Text(eyebrow.toUpperCase(), style: label(11, p.aksen)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(judul, style: serif(44, p.teks)),
+          if (sub != null) ...[
+            const SizedBox(height: 10),
+            Text(sub!, style: isi(14, p.pudar)),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// Tombol pil mint dengan panah
+class TombolPil extends StatelessWidget {
+  final String teks;
+  final IconData? ikon;
+  final bool panah;
+  final bool terisi;
+  final Color? warna;
+  final VoidCallback? onTap;
+
+  const TombolPil({
+    super.key,
+    required this.teks,
+    required this.onTap,
+    this.ikon,
+    this.panah = true,
+    this.terisi = true,
+    this.warna,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final p = paletDari(context);
+    final w = onTap == null ? p.pudar : (warna ?? p.aksen);
+    final warnaTeks = terisi ? (p.latar) : w;
+
+    return Material(
+      color: terisi ? w : Colors.transparent,
+      shape: StadiumBorder(side: BorderSide(color: w, width: 1.2)),
+      child: InkWell(
+        customBorder: const StadiumBorder(),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (ikon != null) ...[
+                Icon(ikon, size: 18, color: warnaTeks),
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: Text(
+                  teks,
+                  overflow: TextOverflow.ellipsis,
+                  style: isi(13.5, warnaTeks, berat: FontWeight.w700),
+                ),
+              ),
+              if (panah) ...[
+                const SizedBox(width: 8),
+                Icon(Icons.arrow_forward, size: 16, color: warnaTeks),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Badge keranjang di AppBar
 class BadgeKeranjang extends StatelessWidget {
   const BadgeKeranjang({super.key});
 
@@ -216,151 +424,63 @@ class BadgeKeranjang extends StatelessWidget {
     final jumlah = context.watch<KeranjangModel>().jumlah;
     final p = paletDari(context);
 
-    return Padding(
-      padding: const EdgeInsets.only(right: 16),
-      child: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          border: Border.all(color: p.magenta, width: 1.4),
-          boxShadow: jumlah > 0 ? glow(p.magenta, kuat: 0.5) : null,
-        ),
+    return Container(
+      width: 46,
+      height: 46,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: p.kaca,
+        border: Border.all(color: p.garis),
+      ),
+      child: Center(
         child: Badge(
           isLabelVisible: jumlah > 0,
-          backgroundColor: p.kuning,
-          textColor: Colors.black,
+          backgroundColor: p.aksen,
+          textColor: p.latar,
           label: Text(
             '$jumlah',
-            style: GoogleFonts.orbitron(
-              fontWeight: FontWeight.w900,
-              fontSize: 11,
-            ),
+            style: isi(10, p.latar, berat: FontWeight.w800),
           ),
-          child: Icon(Icons.shopping_cart, color: p.magenta),
+          child: Icon(Icons.shopping_bag_outlined, color: p.teks),
         ),
       ),
     );
   }
-}
-
-class TombolNeon extends StatelessWidget {
-  final String label;
-  final IconData ikon;
-  final Color warna;
-  final VoidCallback? onTap;
-  final bool isi;
-
-  const TombolNeon({
-    super.key,
-    required this.label,
-    required this.ikon,
-    required this.warna,
-    required this.onTap,
-    this.isi = true,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final p = paletDari(context);
-    final w = onTap == null ? p.pudar : warna;
-
-    return Container(
-      decoration: BoxDecoration(
-        boxShadow: onTap == null ? null : glow(w, kuat: 0.3),
-      ),
-      child: Material(
-        color: isi ? w : Colors.transparent,
-        shape: bentukSiku(w),
-        child: InkWell(
-          customBorder: bentukSiku(w),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(ikon, size: 18, color: isi ? p.latar : w),
-                const SizedBox(width: 8),
-                Flexible(
-                  child: Text(
-                    label.toUpperCase(),
-                    overflow: TextOverflow.ellipsis,
-                    style: judulStyle(11, isi ? p.latar : w, spasi: 1.4),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Kartu neon umum
-Widget kartuNeon(
-  Palet p,
-  Color warna,
-  Widget isi, {
-  EdgeInsets margin = const EdgeInsets.only(bottom: 12),
-}) {
-  return Container(
-    margin: margin,
-    decoration: BoxDecoration(boxShadow: glow(warna, kuat: 0.18)),
-    child: Material(color: p.panel, shape: bentukSiku(warna), child: isi),
-  );
 }
 
 // Daftar riwayat (dipakai di tab Hitung dan Keranjang)
 class DaftarRiwayat extends StatelessWidget {
   final String judul;
   final List<String> data;
-  final Color warna;
 
-  const DaftarRiwayat({
-    super.key,
-    required this.judul,
-    required this.data,
-    required this.warna,
-  });
+  const DaftarRiwayat({super.key, required this.judul, required this.data});
 
   @override
   Widget build(BuildContext context) {
     final p = paletDari(context);
-    return kartuNeon(
-      p,
-      warna,
-      Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.history, color: warna, size: 20),
-                const SizedBox(width: 8),
-                Text(
-                  judul.toUpperCase(),
-                  style: judulStyle(12, warna, spasi: 1.4),
-                ),
-                const Spacer(),
-                Text(
-                  '${data.length}/10',
-                  style: judulStyle(11, p.pudar, spasi: 1),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (data.isEmpty)
-              Text('Belum ada riwayat.', style: isiStyle(17, p.pudar))
-            else
-              for (final baris in data)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
-                  child: Text(baris, style: isiStyle(16, p.teks)),
-                ),
-          ],
-        ),
+    return Kaca(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.history, color: p.aksen, size: 20),
+              const SizedBox(width: 8),
+              Text(judul.toUpperCase(), style: label(11, p.aksen)),
+              const Spacer(),
+              Text('${data.length}/10', style: isi(12, p.pudar)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (data.isEmpty)
+            Text('Belum ada riwayat.', style: isi(14, p.pudar))
+          else
+            for (final baris in data)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Text(baris, style: isi(13.5, p.teks)),
+              ),
+        ],
       ),
     );
   }
@@ -377,108 +497,135 @@ class HalamanUtama extends StatefulWidget {
 class _HalamanUtamaState extends State<HalamanUtama> {
   int _tab = 0; // state lokal: hanya dipakai di sini
 
-  static const _judul = [
-    'Penghitung',
-    'Lifting State',
-    'Katalog',
-    'Keranjang',
-    'Setelan',
-  ];
-
   @override
   Widget build(BuildContext context) {
     final p = paletDari(context);
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(66),
-        child: Container(
-          decoration: BoxDecoration(
-            color: p.panel,
-            border: Border(bottom: BorderSide(color: p.cyan, width: 2)),
-            boxShadow: glow(p.cyan, kuat: 0.3),
-          ),
-          child: SafeArea(
-            bottom: false,
-            child: SizedBox(
-              height: 64,
-              child: Row(
-                children: [
-                  const SizedBox(width: 18),
-                  Icon(Icons.bolt, color: p.kuning),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      _judul[_tab].toUpperCase(),
-                      overflow: TextOverflow.ellipsis,
-                      style: judulStyle(17, p.cyan),
+      extendBody: true,
+      body: LatarSamudra(
+        child: SafeArea(
+          bottom: false,
+          child: Column(
+            children: [
+              // Header: logo di kiri, badge keranjang di kanan
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.shopping_basket_outlined,
+                      color: p.aksen,
+                      size: 30,
                     ),
-                  ),
-                  const BadgeKeranjang(),
-                ],
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'BELANJA',
+                          style: GoogleFonts.inter(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                            color: p.teks,
+                            letterSpacing: 3,
+                          ),
+                        ),
+                        Text(
+                          'PILIH. HITUNG. BAYAR.',
+                          style: GoogleFonts.inter(
+                            fontSize: 9,
+                            color: p.pudar,
+                            letterSpacing: 2.2,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    const BadgeKeranjang(),
+                  ],
+                ),
               ),
-            ),
-          ),
-        ),
-      ),
-      body: IndexedStack(
-        index: _tab,
-        children: const [
-          HalamanPenghitung(),
-          HalamanLifting(),
-          HalamanKatalog(),
-          HalamanKeranjang(),
-          HalamanPengaturan(),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: p.panel,
-          border: Border(top: BorderSide(color: p.magenta, width: 2)),
-          boxShadow: glow(p.magenta, kuat: 0.25),
-        ),
-        child: NavigationBarTheme(
-          data: NavigationBarThemeData(
-            backgroundColor: Colors.transparent,
-            indicatorColor: p.cyan.withOpacity(0.2),
-            labelTextStyle: WidgetStateProperty.resolveWith(
-              (s) => judulStyle(
-                8.5,
-                s.contains(WidgetState.selected) ? p.cyan : p.pudar,
-                spasi: 0.6,
-              ),
-            ),
-            iconTheme: WidgetStateProperty.resolveWith(
-              (s) => IconThemeData(
-                color: s.contains(WidgetState.selected) ? p.cyan : p.pudar,
-              ),
-            ),
-          ),
-          child: NavigationBar(
-            selectedIndex: _tab,
-            onDestinationSelected: (i) => setState(() => _tab = i),
-            destinations: const [
-              NavigationDestination(
-                icon: Icon(Icons.calculate),
-                label: 'HITUNG',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.account_tree),
-                label: 'LIFTING',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.storefront),
-                label: 'KATALOG',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.shopping_cart),
-                label: 'KERANJANG',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.settings),
-                label: 'SETELAN',
+              Expanded(
+                child: IndexedStack(
+                  index: _tab,
+                  children: const [
+                    HalamanPenghitung(),
+                    HalamanLifting(),
+                    HalamanKatalog(),
+                    HalamanKeranjang(),
+                    HalamanPengaturan(),
+                  ],
+                ),
               ),
             ],
+          ),
+        ),
+      ),
+      // Navigasi kaca melayang
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(30),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: p.kaca,
+                  borderRadius: BorderRadius.circular(30),
+                  border: Border.all(color: p.garis),
+                ),
+                child: NavigationBarTheme(
+                  data: NavigationBarThemeData(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    height: 66,
+                    indicatorColor: p.aksen.withOpacity(0.2),
+                    labelTextStyle: WidgetStateProperty.resolveWith(
+                      (s) => isi(
+                        10,
+                        s.contains(WidgetState.selected) ? p.aksen : p.pudar,
+                        berat: FontWeight.w600,
+                      ),
+                    ),
+                    iconTheme: WidgetStateProperty.resolveWith(
+                      (s) => IconThemeData(
+                        color: s.contains(WidgetState.selected)
+                            ? p.aksen
+                            : p.pudar,
+                      ),
+                    ),
+                  ),
+                  child: NavigationBar(
+                    selectedIndex: _tab,
+                    onDestinationSelected: (i) => setState(() => _tab = i),
+                    destinations: const [
+                      NavigationDestination(
+                        icon: Icon(Icons.calculate_outlined),
+                        label: 'Hitung',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.account_tree_outlined),
+                        label: 'Lifting',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.storefront_outlined),
+                        label: 'Katalog',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.shopping_bag_outlined),
+                        label: 'Keranjang',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.tune),
+                        label: 'Setelan',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -509,13 +656,7 @@ class _HalamanPenghitungState extends State<HalamanPenghitung> {
   });
 
   void _kurang() {
-    // Nilai tidak boleh turun di bawah nol
-    if (_nilai == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nilai tidak boleh di bawah nol')),
-      );
-      return;
-    }
+    if (_nilai == 0) return; // tidak boleh di bawah nol
     setState(() {
       _nilai--;
       _catat('Kurang (-1)');
@@ -531,82 +672,65 @@ class _HalamanPenghitungState extends State<HalamanPenghitung> {
   Widget build(BuildContext context) {
     final p = paletDari(context);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(14),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(18, 8, 18, 110),
+      children: [
+        const JudulHero(
+          eyebrow: 'Praktikum 1 • setState',
+          judul: 'Hitung Setiap\nLangkahmu',
+          sub: 'Nilai tidak akan turun di bawah nol.',
+        ),
+        Kaca(
+          padding: const EdgeInsets.all(22),
           child: Column(
             children: [
-              kartuNeon(
-                p,
-                p.cyan,
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Text(
-                        'NILAI SAAT INI',
-                        style: judulStyle(11, p.pudar, spasi: 2),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        '$_nilai',
-                        style: judulStyle(64, p.kuning, spasi: 0),
-                      ),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TombolNeon(
-                              label: 'Kurang',
-                              ikon: Icons.remove,
-                              warna: p.merah,
-                              isi: false,
-                              onTap: _nilai == 0 ? null : _kurang,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TombolNeon(
-                              label: 'Tambah',
-                              ikon: Icons.add,
-                              warna: p.cyan,
-                              onTap: _tambah,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: TombolNeon(
-                              label: 'Reset',
-                              ikon: Icons.refresh,
-                              warna: p.magenta,
-                              isi: false,
-                              onTap: _reset,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              Text('NILAI SAAT INI', style: label(11, p.pudar)),
+              const SizedBox(height: 6),
+              Text(
+                '$_nilai',
+                style: serif(88, p.aksen, berat: FontWeight.w600),
               ),
-              DaftarRiwayat(
-                judul: 'Riwayat perubahan',
-                data: _riwayat,
-                warna: p.magenta,
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                alignment: WrapAlignment.center,
+                children: [
+                  TombolPil(
+                    teks: 'Kurang',
+                    ikon: Icons.remove,
+                    panah: false,
+                    terisi: false,
+                    warna: p.merah,
+                    onTap: _nilai == 0 ? null : _kurang,
+                  ),
+                  TombolPil(
+                    teks: 'Tambah',
+                    ikon: Icons.add,
+                    panah: false,
+                    onTap: _tambah,
+                  ),
+                  TombolPil(
+                    teks: 'Reset',
+                    ikon: Icons.refresh,
+                    panah: false,
+                    terisi: false,
+                    warna: p.aksen2,
+                    onTap: _reset,
+                  ),
+                ],
               ),
             ],
           ),
         ),
-      ),
+        DaftarRiwayat(judul: 'Riwayat perubahan', data: _riwayat),
+      ],
     );
   }
 }
 
 // ======================= PRAKTIKUM 2: LIFTING STATE UP =======================
-// Data keranjang disimpan di INDUK (_HalamanLiftingState). Dua anak
-// bersaudara hanya menerima data dan callback.
+// Data disimpan di INDUK. Dua anak bersaudara hanya menerima data dan callback.
 class HalamanLifting extends StatefulWidget {
   const HalamanLifting({super.key});
 
@@ -615,28 +739,24 @@ class HalamanLifting extends StatefulWidget {
 }
 
 class _HalamanLiftingState extends State<HalamanLifting> {
-  final List<String> _item = []; // state diangkat ke induk
+  final List<String> _item = [];
 
   void _tambah(String nama) => setState(() => _item.add(nama));
   void _hapus(int index) => setState(() => _item.removeAt(index));
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(14),
-      child: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560),
-          child: Column(
-            children: [
-              // Anak 1: hanya menerima aksi, tidak menyimpan data
-              DaftarProdukLifting(onTambah: _tambah),
-              // Anak 2: hanya menerima data dan aksi hapus
-              RingkasanLifting(item: _item, onHapus: _hapus),
-            ],
-          ),
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(18, 8, 18, 110),
+      children: [
+        const JudulHero(
+          eyebrow: 'Praktikum 2 • Lifting state up',
+          judul: 'Satu Data,\nDua Widget',
+          sub: 'Data berada di induk, anak hanya menerima data dan aksi.',
         ),
-      ),
+        DaftarProdukLifting(onTambah: _tambah),
+        RingkasanLifting(item: _item, onHapus: _hapus),
+      ],
     );
   }
 }
@@ -648,33 +768,28 @@ class DaftarProdukLifting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = paletDari(context);
-    return kartuNeon(
-      p,
-      p.cyan,
-      Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('DAFTAR PRODUK', style: judulStyle(12, p.cyan, spasi: 1.4)),
-            const SizedBox(height: 8),
-            for (final produk in daftarProduk.take(5))
-              ListTile(
-                dense: true,
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(produk.ikon, color: p.cyan),
-                title: Text(produk.nama, style: isiStyle(18, p.teks)),
-                subtitle: Text(
-                  rupiah(produk.harga),
-                  style: isiStyle(15, p.kuning),
-                ),
-                trailing: IconButton(
-                  icon: Icon(Icons.add_circle, color: p.magenta),
-                  onPressed: () => onTambah(produk.nama),
-                ),
+    return Kaca(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('DAFTAR PRODUK', style: label(11, p.aksen)),
+          const SizedBox(height: 6),
+          for (final produk in daftarProduk.take(5))
+            ListTile(
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(produk.ikon, color: p.aksen),
+              title: Text(
+                produk.nama,
+                style: isi(14.5, p.teks, berat: FontWeight.w600),
               ),
-          ],
-        ),
+              subtitle: Text(rupiah(produk.harga), style: isi(12.5, p.emas)),
+              trailing: IconButton(
+                icon: Icon(Icons.add_circle_outline, color: p.aksen),
+                onPressed: () => onTambah(produk.nama),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -692,49 +807,41 @@ class RingkasanLifting extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = paletDari(context);
-    return kartuNeon(
-      p,
-      p.magenta,
-      Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  'RINGKASAN KERANJANG',
-                  style: judulStyle(12, p.magenta, spasi: 1.4),
-                ),
-                const Spacer(),
-                Text(
-                  '${item.length} ITEM',
-                  style: judulStyle(11, p.kuning, spasi: 1),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            if (item.isEmpty)
+    return Kaca(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text('RINGKASAN KERANJANG', style: label(11, p.aksen2)),
+              const Spacer(),
               Text(
-                'Belum ada item. Tekan + pada daftar produk.',
-                style: isiStyle(17, p.pudar),
-              )
-            else
-              for (int i = 0; i < item.length; i++)
-                ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(
-                    '${i + 1}. ${item[i]}',
-                    style: isiStyle(18, p.teks),
-                  ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete_forever, color: p.merah),
-                    onPressed: () => onHapus(i),
-                  ),
+                '${item.length} item',
+                style: isi(12.5, p.emas, berat: FontWeight.w700),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (item.isEmpty)
+            Text(
+              'Belum ada item. Tekan + pada daftar produk.',
+              style: isi(14, p.pudar),
+            )
+          else
+            for (int i = 0; i < item.length; i++)
+              ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  '${i + 1}. ${item[i]}',
+                  style: isi(14.5, p.teks, berat: FontWeight.w600),
                 ),
-          ],
-        ),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete_outline, color: p.merah),
+                  onPressed: () => onHapus(i),
+                ),
+              ),
+        ],
       ),
     );
   }
@@ -768,50 +875,116 @@ class _HalamanKatalogState extends State<HalamanKatalog> {
   @override
   Widget build(BuildContext context) {
     final p = paletDari(context);
+    final keranjang = context.watch<KeranjangModel>();
     final hasil = daftarProduk
         .where((x) => x.nama.toLowerCase().contains(_kataKunci.toLowerCase()))
         .toList();
 
-    return Column(
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(18, 8, 18, 110),
       children: [
-        Padding(
-          padding: const EdgeInsets.all(14),
+        const JudulHero(
+          eyebrow: 'Kebutuhan harian',
+          judul: 'Belanja Yang\nTetap Rapi',
+          sub: 'Pilih produk, pantau total, dan bayar dalam satu tempat.',
+        ),
+
+        // Kolom pencarian kaca
+        Kaca(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+          radius: 18,
           child: TextField(
             controller: _cari,
-            style: isiStyle(19, p.teks),
-            cursorColor: p.cyan,
+            style: isi(15, p.teks),
+            cursorColor: p.aksen,
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.search, color: p.cyan),
-              hintText: 'CARI PRODUK...',
-              hintStyle: judulStyle(12, p.pudar, spasi: 1.4),
-              filled: true,
-              fillColor: p.panel,
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.zero,
-                borderSide: BorderSide(color: p.cyan.withOpacity(0.5)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.zero,
-                borderSide: BorderSide(color: p.cyan, width: 2),
-              ),
+              border: InputBorder.none,
+              prefixIcon: Icon(Icons.search, color: p.aksen),
+              hintText: 'Cari produk...',
+              hintStyle: isi(14, p.pudar),
             ),
           ),
         ),
-        Expanded(
-          child: hasil.isEmpty
-              ? Center(
-                  child: Text(
-                    'PRODUK TIDAK DITEMUKAN',
-                    style: judulStyle(14, p.magenta),
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  itemCount: hasil.length,
-                  itemBuilder: (context, i) =>
-                      KartuProduk(produk: hasil[i], indeks: i),
+
+        // Baris statistik
+        Kaca(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: _Statistik(
+                  angka: '${daftarProduk.length}',
+                  teks: 'Produk',
                 ),
+              ),
+              Container(width: 1, height: 36, color: p.garis),
+              Expanded(
+                child: _Statistik(
+                  angka: '${keranjang.jumlah}',
+                  teks: 'Item dipilih',
+                ),
+              ),
+              Container(width: 1, height: 36, color: p.garis),
+              Expanded(
+                child: _Statistik(
+                  angka: rupiah(keranjang.total),
+                  teks: 'Total',
+                  kecil: true,
+                ),
+              ),
+            ],
+          ),
         ),
+
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 6, 4, 10),
+          child: Row(
+            children: [
+              Text('Produk Populer', style: serif(26, p.teks)),
+              const Spacer(),
+              Text('${hasil.length} hasil', style: isi(12, p.aksen)),
+            ],
+          ),
+        ),
+
+        if (hasil.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 30),
+            child: Center(
+              child: Text('Produk tidak ditemukan', style: isi(15, p.pudar)),
+            ),
+          )
+        else
+          for (int i = 0; i < hasil.length; i++)
+            KartuProduk(produk: hasil[i], indeks: i),
+      ],
+    );
+  }
+}
+
+class _Statistik extends StatelessWidget {
+  final String angka;
+  final String teks;
+  final bool kecil;
+  const _Statistik({
+    required this.angka,
+    required this.teks,
+    this.kecil = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final p = paletDari(context);
+    return Column(
+      children: [
+        Text(
+          angka,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: serif(kecil ? 22 : 30, p.aksen, berat: FontWeight.w600),
+        ),
+        const SizedBox(height: 2),
+        Text(teks, style: isi(11.5, p.pudar)),
       ],
     );
   }
@@ -826,70 +999,80 @@ class KartuProduk extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = paletDari(context);
     final jumlah = context.watch<KeranjangModel>().jumlahDari(produk.id);
-    final warna = indeks.isEven ? p.cyan : p.magenta;
+    final warna = indeks.isEven ? p.aksen : p.aksen2;
 
-    return kartuNeon(
-      p,
-      warna,
-      Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: p.panel2,
-                border: Border.all(color: warna, width: 1.4),
+    return Kaca(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          Container(
+            width: 62,
+            height: 62,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [warna.withOpacity(0.45), warna.withOpacity(0.10)],
               ),
-              child: Icon(produk.ikon, color: warna),
+              border: Border.all(color: warna.withOpacity(0.5)),
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    produk.nama.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: judulStyle(12.5, warna, spasi: 1),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(rupiah(produk.harga), style: isiStyle(18, p.kuning)),
-                ],
-              ),
-            ),
-            if (jumlah == 0)
-              SizedBox(
-                width: 112,
-                child: TombolNeon(
-                  label: 'Tambah',
-                  ikon: Icons.add_shopping_cart,
-                  warna: warna,
-                  // read: hanya memicu aksi
-                  onTap: () => context.read<KeranjangModel>().tambah(produk),
+            child: Icon(produk.ikon, color: p.teks, size: 28),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  produk.nama,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: isi(15, p.teks, berat: FontWeight.w700),
                 ),
-              )
-            else
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.remove_circle_outline, color: p.merah),
-                    onPressed: () =>
-                        context.read<KeranjangModel>().kurang(produk),
-                  ),
-                  Text('$jumlah', style: judulStyle(16, p.teks, spasi: 0)),
-                  IconButton(
-                    icon: Icon(Icons.add_circle, color: warna),
-                    onPressed: () =>
-                        context.read<KeranjangModel>().tambah(produk),
-                  ),
-                ],
-              ),
-          ],
-        ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.star_rounded, size: 14, color: p.emas),
+                    const SizedBox(width: 3),
+                    Text('4.${(produk.id % 4) + 6}', style: isi(12, p.pudar)),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  rupiah(produk.harga),
+                  style: serif(22, p.emas, berat: FontWeight.w700),
+                ),
+              ],
+            ),
+          ),
+          if (jumlah == 0)
+            TombolPil(
+              teks: 'Tambah',
+              // read: hanya memicu aksi
+              onTap: () => context.read<KeranjangModel>().tambah(produk),
+            )
+          else
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.remove_circle_outline, color: p.merah),
+                  onPressed: () =>
+                      context.read<KeranjangModel>().kurang(produk),
+                ),
+                Text(
+                  '$jumlah',
+                  style: serif(24, p.teks, berat: FontWeight.w700),
+                ),
+                IconButton(
+                  icon: Icon(Icons.add_circle, color: warna),
+                  onPressed: () =>
+                      context.read<KeranjangModel>().tambah(produk),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }
@@ -903,143 +1086,133 @@ class HalamanKeranjang extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = paletDari(context);
     final keranjang = context.watch<KeranjangModel>();
-    final List<MapEntry<int, int>> item = keranjang.isi.entries.toList();
+    final List<MapEntry<int, int>> item = keranjang.isiKeranjang.entries
+        .toList();
 
-    return Column(
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(18, 8, 18, 110),
       children: [
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(14),
-            children: [
-              if (item.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 24),
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.remove_shopping_cart,
-                        size: 56,
-                        color: p.magenta,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'KERANJANG KOSONG',
-                        style: judulStyle(16, p.magenta),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Tambah produk dari tab Katalog.',
-                        style: isiStyle(17, p.pudar),
-                      ),
-                    ],
-                  ),
-                )
-              else
-                for (int i = 0; i < item.length; i++)
-                  Builder(
-                    builder: (context) {
-                      final produk = daftarProduk.firstWhere(
-                        (x) => x.id == item[i].key,
-                      );
-                      final int jumlah = item[i].value;
-                      final int subtotal = produk.harga * jumlah;
-                      final warna = i.isEven ? p.cyan : p.magenta;
-                      return kartuNeon(
-                        p,
-                        warna,
-                        ListTile(
-                          leading: Icon(produk.ikon, color: warna, size: 30),
-                          title: Text(
-                            produk.nama.toUpperCase(),
-                            style: judulStyle(12.5, warna, spasi: 1),
-                          ),
-                          subtitle: Text(
-                            '$jumlah x ${rupiah(produk.harga)} = ${rupiah(subtotal)}',
-                            style: isiStyle(17, p.teks),
-                          ),
-                          trailing: IconButton(
-                            icon: Icon(Icons.delete_forever, color: p.merah),
-                            onPressed: () =>
-                                context.read<KeranjangModel>().hapus(produk),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-              // Riwayat aktivitas keranjang (maks. 10)
-              DaftarRiwayat(
-                judul: 'Riwayat aktivitas',
-                data: keranjang.riwayat,
-                warna: p.kuning,
-              ),
-            ],
-          ),
+        const JudulHero(
+          eyebrow: 'Keranjang',
+          judul: 'Pilihanmu,\nSiap Dibayar',
         ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: p.panel,
-            border: Border(top: BorderSide(color: p.kuning, width: 2)),
-            boxShadow: glow(p.kuning, kuat: 0.2),
-          ),
+        if (item.isEmpty)
+          Kaca(
+            padding: const EdgeInsets.symmetric(vertical: 30),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.remove_shopping_cart_outlined,
+                  size: 52,
+                  color: p.aksen,
+                ),
+                const SizedBox(height: 12),
+                Text('Keranjang masih kosong', style: serif(26, p.teks)),
+                const SizedBox(height: 4),
+                Text(
+                  'Tambah produk dari tab Katalog.',
+                  style: isi(14, p.pudar),
+                ),
+              ],
+            ),
+          )
+        else
+          for (int i = 0; i < item.length; i++)
+            Builder(
+              builder: (context) {
+                final produk = daftarProduk.firstWhere(
+                  (x) => x.id == item[i].key,
+                );
+                final int jumlah = item[i].value;
+                final int subtotal = produk.harga * jumlah;
+                return Kaca(
+                  padding: const EdgeInsets.all(8),
+                  child: ListTile(
+                    leading: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        color: p.aksen.withOpacity(0.18),
+                      ),
+                      child: Icon(produk.ikon, color: p.aksen),
+                    ),
+                    title: Text(
+                      produk.nama,
+                      style: isi(14.5, p.teks, berat: FontWeight.w700),
+                    ),
+                    subtitle: Text(
+                      '$jumlah x ${rupiah(produk.harga)} = ${rupiah(subtotal)}',
+                      style: isi(12.5, p.pudar),
+                    ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.delete_outline, color: p.merah),
+                      onPressed: () =>
+                          context.read<KeranjangModel>().hapus(produk),
+                    ),
+                  ),
+                );
+              },
+            ),
+
+        // Ringkasan total
+        Kaca(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text('${keranjang.jumlah} ITEM', style: label(11, p.pudar)),
+              const SizedBox(height: 4),
               Text(
-                '${keranjang.jumlah} ITEM',
-                style: judulStyle(11, p.pudar, spasi: 2),
+                rupiah(keranjang.total),
+                style: serif(42, p.emas, berat: FontWeight.w700),
               ),
-              const SizedBox(height: 2),
-              Text(
-                'TOTAL ${rupiah(keranjang.total)}',
-                style: judulStyle(22, p.kuning, spasi: 1),
-              ),
-              const SizedBox(height: 12),
-              Row(
+              const SizedBox(height: 14),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
                 children: [
-                  Expanded(
-                    child: TombolNeon(
-                      label: 'Kosongkan',
-                      ikon: Icons.delete_sweep,
-                      warna: p.merah,
-                      isi: false,
-                      onTap: item.isEmpty
-                          ? null
-                          : () => context.read<KeranjangModel>().kosongkan(),
-                    ),
+                  TombolPil(
+                    teks: 'Kosongkan',
+                    ikon: Icons.delete_sweep_outlined,
+                    panah: false,
+                    terisi: false,
+                    warna: p.merah,
+                    onTap: item.isEmpty
+                        ? null
+                        : () => context.read<KeranjangModel>().kosongkan(),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TombolNeon(
-                      label: 'Bayar',
-                      ikon: Icons.payments,
-                      warna: p.cyan,
-                      onTap: item.isEmpty
-                          ? null
-                          : () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  backgroundColor: p.panel2,
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: bentukSiku(p.cyan),
-                                  content: Text(
-                                    'Terima kasih, belanja selesai!',
-                                    style: isiStyle(17, p.teks),
-                                  ),
+                  TombolPil(
+                    teks: 'Bayar Sekarang',
+                    onTap: item.isEmpty
+                        ? null
+                        : () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                backgroundColor: p.latar2,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(color: p.aksen),
                                 ),
-                              );
-                              context.read<KeranjangModel>().kosongkan(
-                                alasan: 'Pembayaran selesai',
-                              );
-                            },
-                    ),
+                                content: Text(
+                                  'Terima kasih, belanja selesai!',
+                                  style: isi(14, Colors.white),
+                                ),
+                              ),
+                            );
+                            context.read<KeranjangModel>().kosongkan(
+                              alasan: 'Pembayaran selesai',
+                            );
+                          },
                   ),
                 ],
               ),
             ],
           ),
         ),
+
+        // Riwayat aktivitas keranjang (maks. 10)
+        DaftarRiwayat(judul: 'Riwayat aktivitas', data: keranjang.riwayat),
       ],
     );
   }
@@ -1055,24 +1228,28 @@ class HalamanPengaturan extends StatelessWidget {
     final gelap = context.watch<PengaturanModel>().gelap;
 
     return ListView(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(18, 8, 18, 110),
       children: [
-        kartuNeon(
-          p,
-          p.cyan,
-          SwitchListTile(
-            activeColor: p.cyan,
+        const JudulHero(
+          eyebrow: 'Pengaturan',
+          judul: 'Atur Suasana\nAplikasimu',
+          sub: 'Pilihan tema berlaku untuk seluruh halaman.',
+        ),
+        Kaca(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: SwitchListTile(
+            activeColor: p.aksen,
             secondary: Icon(
               gelap ? Icons.dark_mode : Icons.light_mode,
-              color: p.cyan,
+              color: p.aksen,
             ),
             title: Text(
-              gelap ? 'CYBER NEON (GELAP)' : 'CYBER LIGHT (TERANG)',
-              style: judulStyle(12.5, p.cyan, spasi: 1),
+              gelap ? 'Tema Samudra (gelap)' : 'Tema Pagi (terang)',
+              style: isi(15, p.teks, berat: FontWeight.w700),
             ),
             subtitle: Text(
               'Berlaku untuk seluruh halaman aplikasi',
-              style: isiStyle(16, p.pudar),
+              style: isi(12.5, p.pudar),
             ),
             value: gelap,
             onChanged: (nilai) =>
@@ -1081,34 +1258,32 @@ class HalamanPengaturan extends StatelessWidget {
         ),
         // Consumer: hanya kartu ini yang dibangun ulang
         Consumer<KeranjangModel>(
-          builder: (context, keranjang, _) => kartuNeon(
-            p,
-            p.magenta,
-            ListTile(
-              leading: Icon(Icons.shopping_cart, color: p.magenta),
+          builder: (context, keranjang, _) => Kaca(
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(Icons.shopping_bag_outlined, color: p.aksen2),
               title: Text(
-                'ITEM DI KERANJANG',
-                style: judulStyle(12.5, p.magenta, spasi: 1),
+                'Item di keranjang',
+                style: isi(15, p.teks, berat: FontWeight.w700),
               ),
               subtitle: Text(
                 '${keranjang.jumlah} item',
-                style: isiStyle(17, p.teks),
+                style: isi(13, p.pudar),
               ),
             ),
           ),
         ),
-        kartuNeon(
-          p,
-          p.kuning,
-          ListTile(
-            leading: Icon(Icons.person, color: p.kuning),
+        Kaca(
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: Icon(Icons.person_outline, color: p.emas),
             title: Text(
-              'DHARMA PUTRA',
-              style: judulStyle(12.5, p.kuning, spasi: 1),
+              'Dharma Putra',
+              style: isi(15, p.teks, berat: FontWeight.w700),
             ),
             subtitle: Text(
               '20246312108 - Teknik Komputer',
-              style: isiStyle(17, p.teks),
+              style: isi(13, p.pudar),
             ),
           ),
         ),
