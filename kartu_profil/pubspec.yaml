@@ -14,6 +14,11 @@ dependencies:
   cupertino_icons: ^2.0.0
   google_fonts: ^9.0.0
   intl: ^0.20.3
+  image_picker: ^1.2.4
+  permission_handler: ^13.0.2
+  camera: ^0.12.2
+  camera_windows: ^0.3.0+1
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_test:
